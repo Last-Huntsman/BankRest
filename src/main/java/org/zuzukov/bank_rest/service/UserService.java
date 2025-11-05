@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.zuzukov.bank_rest.dto.*;
@@ -13,6 +16,7 @@ import org.zuzukov.bank_rest.entity.User;
 import org.zuzukov.bank_rest.repository.RevokedTokenRepository;
 import org.zuzukov.bank_rest.exception.ConflictException;
 import org.zuzukov.bank_rest.repository.UserRepository;
+import org.zuzukov.bank_rest.security.UserDetail;
 
 import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
@@ -23,7 +27,7 @@ import java.util.UUID;
     @Service
     @RequiredArgsConstructor
     @Slf4j
-    public class UserService {
+    public class UserService implements UserDetailsService {
         private final RevokedTokenRepository revokedTokenRepository;
         private final UserRepository userRepository;
         private final JwtService jwtService;
@@ -110,7 +114,12 @@ import java.util.UUID;
            && jwtService.getEmailFromToken(token).equals(email);
         }
 
-
+        @Override
+        public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+            return userRepository.findByEmail(email)
+                    .map(UserDetail::new)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+        }
     }
 
 
