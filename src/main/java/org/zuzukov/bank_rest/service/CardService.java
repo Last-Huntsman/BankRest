@@ -29,7 +29,8 @@ import java.util.UUID;
 public class CardService {
     private final CardRepository cardRepository;
     private final CardMapper cardMapper;
-
+    private final UserRepository userRepository;
+    private final CryptoService cryptoService;
     @Transactional(readOnly = true)
     public Page<CardDto> adminSearch(String ownerEmail, CardStatus status, String last4, Pageable pageable) {
         return cardRepository.findAll(pageable).map(cardMapper::toDto);
@@ -39,6 +40,27 @@ public class CardService {
     public void adminBlock(UUID cardId) {
         Card card = cardRepository.findById(cardId).orElseThrow();
         card.setStatus(CardStatus.BLOCKED);
+    }
+      @Transactional
+    public CardDto adminCreate(CardCreateDto dto) {
+        User owner = userRepository.findByEmail(dto.getOwnerEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Owner not found"));
+
+        Card card = new Card();
+        card.setOwner(owner);
+        card.setNumberEncrypted(cryptoService.encrypt(dto.getCardNumber()));
+        card.setLast4(dto.getCardNumber().substring(12));
+        card.setStatus(CardStatus.ACTIVE);
+        card.setBalance(dto.getInitialBalance() == null ? BigDecimal.ZERO : dto.getInitialBalance());
+        card = cardRepository.save(card);
+        return cardMapper.toDto(card);
+    }
+
+
+    @Transactional
+    public void adminActivate(UUID cardId) {
+        Card card = cardRepository.findById(cardId).orElseThrow();
+        card.setStatus(CardStatus.ACTIVE);
     }
 }
 
