@@ -1,0 +1,116 @@
+databaseChangeLog:
+  - changeSet:
+      id: core-users-1
+      author: assistant
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: users
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: INTEGER
+
+  - changeSet:
+      id: core-user-roles-1
+      author: assistant
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: user_roles
+      changes:
+        - createTable:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: user_roles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_user_roles_user
+        - createIndex:
+            tableName: user_roles
+            indexName: idx_user_roles_user
+            columns:
+              - column:
+                  name: user_id
+
+  - changeSet:
+      id: core-revoked-1
+      author: assistant
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: revoked_tokens
+      changes:
+        - createTable:
+            tableName: revoked_tokens
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: token
+                  type: VARCHAR(128)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: revoked_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: revoked_tokens
+            indexName: idx_revoked_token
+            columns:
+              - column:
+                  name: token
+
+

@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/migration/tables/core.yml
+  - include:
+      file: db/migration/tables/cards.yml
+
+
