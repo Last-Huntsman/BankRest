@@ -81,19 +81,21 @@ public class CardService {
     @Transactional(readOnly = true)
     public Page<CardDto> userListOwn(String userEmail, CardStatus status, Pageable pageable) {
         LocalDate today = LocalDate.now();
-        Page<CardDto> page = (status == null
+        Page<Card> cards = (status == null)
                 ? cardRepository.findAllByOwnerEmail(userEmail, pageable)
-                : cardRepository.findAllByOwnerEmailAndStatus(userEmail, status, pageable))
-                .map(cardMapper::toDto);
+                : cardRepository.findAllByOwnerEmailAndStatus(userEmail, status, pageable);
 
-        page.forEach(c -> {
-            if (c.getExpiry().isBefore(today) && c.getStatus() == CardStatus.ACTIVE) {
-                c.setStatus(CardStatus.EXPIRED);
+        cards.forEach(card -> {
+            if (card.getStatus() == CardStatus.ACTIVE && card.getExpiry().isBefore(today)) {
+                card.setStatus(CardStatus.EXPIRED);
+                cardRepository.save(card);
+                log.info("Card {} marked expired automatically (owner={})", card.getId(), userEmail);
             }
         });
-        log.debug("Cards listed for user={}, count={}", userEmail, page.getNumberOfElements());
-        return page;
+
+        return cards.map(cardMapper::toDto);
     }
+
 
 
     @Transactional
@@ -112,6 +114,18 @@ public class CardService {
                 .orElseThrow(() -> new NotFoundException("From card not found"));
         Card to = cardRepository.findByIdAndOwnerEmail(transfer.getToCardId(), userEmail)
                 .orElseThrow(() -> new NotFoundException("To card not found"));
+
+        LocalDate today = LocalDate.now();
+        if (from.getStatus() == CardStatus.ACTIVE && from.getExpiry().isBefore(today)) {
+            from.setStatus(CardStatus.EXPIRED);
+            cardRepository.save(from);
+            log.info("From-card {} expired during transfer", from.getId());
+        }
+        if (to.getStatus() == CardStatus.ACTIVE && to.getExpiry().isBefore(today)) {
+            to.setStatus(CardStatus.EXPIRED);
+            cardRepository.save(to);
+            log.info("To-card {} expired during transfer", to.getId());
+        }
 
         transferValidator.ensureTransferFromAllowed(from);
         transferValidator.ensureTransferToAllowed(to);

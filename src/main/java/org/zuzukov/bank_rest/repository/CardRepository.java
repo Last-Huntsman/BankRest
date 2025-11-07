@@ -8,10 +8,15 @@ import org.springframework.data.repository.query.Param;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface CardRepository extends JpaRepository<Card, UUID> {
+
+    @Query("SELECT c FROM Card c WHERE c.status = :status AND c.expiry < :date")
+    List<Card> findAllActiveExpired(CardStatus status, LocalDate date);
 
 
     Page<Card> findAllByOwnerEmail(String email, Pageable pageable);

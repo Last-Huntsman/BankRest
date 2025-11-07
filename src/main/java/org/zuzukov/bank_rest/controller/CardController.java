@@ -25,7 +25,7 @@ public class CardController {
     private final CardService cardService;
 
     @Operation(
-            summary = "Создать карту (только ADMIN)",
+            summary = "Создать карту (ADMIN)",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             schema = @Schema(implementation = CardCreateDto.class),
@@ -92,7 +92,7 @@ public class CardController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Админ блокирует карту")
+    @Operation(summary = "Админ блокирует карту (ADMIN)")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/{id}/block")
     public ResponseEntity<Void> block(@PathVariable UUID id) {
