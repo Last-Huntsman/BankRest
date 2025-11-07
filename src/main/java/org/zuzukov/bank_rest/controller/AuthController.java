@@ -51,7 +51,6 @@ public class AuthController {
         return ResponseEntity.ok("User registered with ID: " + userId);
     }
 
-    // ------------------- Авторизация -------------------
     @Operation(
             summary = "Аутентификация (логин)",
             description = "Выдаёт пару access/refresh токенов при корректных данных.",
@@ -78,7 +77,6 @@ public class AuthController {
         return ResponseEntity.ok(userService.signIn(credentialsDto));
     }
 
-    // ------------------- Обновление токена -------------------
     @Operation(
             summary = "Обновление токена",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -102,7 +100,6 @@ public class AuthController {
         return ResponseEntity.ok(userService.refreshToken(refreshTokenDto));
     }
 
-    // ------------------- Выход (logout) -------------------
     @Operation(
             summary = "Выход из системы (logout)",
             description = "Помечает токен как аннулированный (revoked).",
@@ -125,7 +122,6 @@ public class AuthController {
         return ResponseEntity.ok("Token revoked");
     }
 
-    // ------------------- Получить данные пользователя -------------------
     @Operation(
             summary = "Получить данные пользователя по email",
             responses = {
