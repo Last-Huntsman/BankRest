@@ -127,7 +127,7 @@ public class CardService {
 
     @Transactional(readOnly = true)
     public Page<CardDto> adminSearch(String ownerEmail, CardStatus status, String last4, Pageable pageable) {
-        return cardRepository.findAllByOwnerEmail(ownerEmail, status, last4, pageable).map(cardMapper::toDto);
+        return cardRepository.adminSearch(ownerEmail, status, last4, pageable).map(cardMapper::toDto);
     }
 
 
