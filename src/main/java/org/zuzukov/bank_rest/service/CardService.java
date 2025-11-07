@@ -113,17 +113,17 @@ public class CardService {
         Card to = cardRepository.findByIdAndOwnerEmail(transfer.getToCardId(), userEmail)
                 .orElseThrow(() -> new NotFoundException("To card not found"));
 
-        transferValidator.ensureTransferAllowed(from);
-        transferValidator.ensureTransferAllowed(to);
+        transferValidator.ensureTransferFromAllowed(from);
+        transferValidator.ensureTransferToAllowed(to);
 
         BigDecimal amount = transfer.getAmount();
         transferValidator.ensureSufficientFunds(from.getBalance(), amount);
 
         from.setBalance(from.getBalance().subtract(amount));
         to.setBalance(to.getBalance().add(amount));
+
         log.info("Transfer: user={}, fromCard={}, toCard={}, amount={}", userEmail, from.getId(), to.getId(), amount);
     }
-
 
     @Transactional(readOnly = true)
     public Page<CardDto> adminSearch(String ownerEmail, CardStatus status, String last4, Pageable pageable) {
