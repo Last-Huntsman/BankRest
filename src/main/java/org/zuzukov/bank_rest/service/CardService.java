@@ -67,9 +67,20 @@ public class CardService {
     public void adminActivate(UUID cardId) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new NotFoundException("Card not found"));
+
+        LocalDate today = LocalDate.now();
+        if (card.getExpiry().isBefore(today)) {
+            YearMonth newExpiry = YearMonth.now().plusYears(3);
+            card.setExpiry(newExpiry.atEndOfMonth());
+            log.info("Card {} expiry extended to {}", cardId, card.getExpiry());
+        }
+
         card.setStatus(CardStatus.ACTIVE);
-        log.info("Card activated: id={}", cardId);
+        cardRepository.save(card);
+
+        log.info("Card activated: id={}, newExpiry={}", cardId, card.getExpiry());
     }
+
 
     @Transactional
     public void adminDelete(UUID cardId) {
