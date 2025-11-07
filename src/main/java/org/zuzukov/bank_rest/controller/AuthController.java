@@ -1,21 +1,18 @@
 package org.zuzukov.bank_rest.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.*;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
-import org.springframework.web.bind.annotation.RequestBody; // ✅ правильно
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.zuzukov.bank_rest.dto.*;
 import org.zuzukov.bank_rest.service.UserService;
 
-import javax.naming.AuthenticationException;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -34,13 +31,13 @@ public class AuthController {
                     content = @Content(
                             schema = @Schema(implementation = UserCreateDto.class),
                             examples = @ExampleObject(value = """
-                    {
-                      "firstName": "John",
-                      "lastName": "Doe",
-                      "email": "john.doe@example.com",
-                      "password": "StrongPass123"
-                    }
-                    """)
+                                    {
+                                      "firstName": "John",
+                                      "lastName": "Doe",
+                                      "email": "john.doe@example.com",
+                                      "password": "StrongPass123"
+                                    }
+                                    """)
                     )
             ),
             responses = {
@@ -53,6 +50,7 @@ public class AuthController {
         UUID userId = userService.addUser(userDto);
         return ResponseEntity.ok("User registered with ID: " + userId);
     }
+
     // ------------------- Авторизация -------------------
     @Operation(
             summary = "Аутентификация (логин)",
@@ -61,11 +59,11 @@ public class AuthController {
                     content = @Content(
                             schema = @Schema(implementation = UserCredentiallsDto.class),
                             examples = @ExampleObject(value = """
-                                {
-                                  "email": "john.doe@example.com",
-                                  "password": "StrongPass123"
-                                }
-                                """)
+                                    {
+                                      "email": "john.doe@example.com",
+                                      "password": "StrongPass123"
+                                    }
+                                    """)
                     )
             ),
             responses = {
@@ -76,9 +74,8 @@ public class AuthController {
     )
     @PostMapping("/login")
     public ResponseEntity<JwtAuthenticationDto> login(
-            @org.springframework.web.bind.annotation.RequestBody @Valid UserCredentiallsDto credentialsDto)
-            throws AuthenticationException {
-        return ResponseEntity.ok(userService.singIn(credentialsDto));
+            @RequestBody @Valid UserCredentiallsDto credentialsDto) {
+        return ResponseEntity.ok(userService.signIn(credentialsDto));
     }
 
     // ------------------- Обновление токена -------------------
@@ -88,10 +85,10 @@ public class AuthController {
                     content = @Content(
                             schema = @Schema(implementation = RefreshTokenDto.class),
                             examples = @ExampleObject(value = """
-                                {
-                                  "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
-                                }
-                                """)
+                                    {
+                                      "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
+                                    }
+                                    """)
                     )
             ),
             responses = {
@@ -101,8 +98,7 @@ public class AuthController {
     )
     @PostMapping("/refresh")
     public ResponseEntity<JwtAuthenticationDto> refresh(
-            @org.springframework.web.bind.annotation.RequestBody @Valid RefreshTokenDto refreshTokenDto)
-            throws Exception {
+            @RequestBody @Valid RefreshTokenDto refreshTokenDto) {
         return ResponseEntity.ok(userService.refreshToken(refreshTokenDto));
     }
 
@@ -114,17 +110,17 @@ public class AuthController {
                     content = @Content(
                             schema = @Schema(implementation = TokenDto.class),
                             examples = @ExampleObject(value = """
-                                {
-                                  "token": "eyJhbGciOiJIUzI1NiJ9..."
-                                }
-                                """)
+                                    {
+                                      "token": "eyJhbGciOiJIUzI1NiJ9..."
+                                    }
+                                    """)
                     )
             ),
             responses = @ApiResponse(responseCode = "200", description = "Токен успешно отозван")
     )
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
-            @org.springframework.web.bind.annotation.RequestBody @Valid TokenDto tokenDto) {
+            @RequestBody @Valid TokenDto tokenDto) {
         userService.revokeToken(tokenDto.getToken());
         return ResponseEntity.ok("Token revoked");
     }
@@ -138,8 +134,7 @@ public class AuthController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Principal principal)
-            throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<?> getCurrentUser(Principal principal) {
         String email = principal.getName();
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }

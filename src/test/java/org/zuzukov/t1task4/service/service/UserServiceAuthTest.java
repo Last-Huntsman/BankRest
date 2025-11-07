@@ -40,7 +40,7 @@ public class UserServiceAuthTest {
         dto.setEmail("u@e.com");
         dto.setPassword("p");
 
-        JwtAuthenticationDto tokens = service.singIn(dto);
+        JwtAuthenticationDto tokens = service.signIn(dto);
         assertNotNull(tokens.getToken());
     }
 
@@ -66,7 +66,7 @@ public class UserServiceAuthTest {
         dto.setEmail("u@e.com");
         dto.setPassword("p");
 
-        assertThrows(AuthenticationException.class, () -> service.singIn(dto));
+        assertThrows(AuthenticationException.class, () -> service.signIn(dto));
     }
 
     private static void setField(Object target, String name, String value) throws Exception {

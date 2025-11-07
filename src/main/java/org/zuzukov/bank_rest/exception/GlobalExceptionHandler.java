@@ -1,5 +1,6 @@
 package org.zuzukov.bank_rest.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -60,4 +61,40 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiError(Instant.now(), 500, ErrorCode.SERVER_ERROR, ex.getMessage(), null));
     }
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(Exception ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiError(
+                        Instant.now(),
+                        403,
+                        ErrorCode.FORBIDDEN,
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+    @ExceptionHandler(javax.naming.AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthenticationException(Exception ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiError(
+                        Instant.now(),
+                        401,
+                        ErrorCode.UNAUTHORIZED,
+                        ex.getMessage(),
+                        null
+                ));
+    }
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidRefreshToken(InvalidRefreshTokenException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiError(
+                        Instant.now(),
+                        401,
+                        ErrorCode.UNAUTHORIZED,
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+
 }

@@ -17,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import org.zuzukov.bank_rest.security.JwtFilter;
+import org.zuzukov.bank_rest.service.CustomUserDetailsService;
 import org.zuzukov.bank_rest.service.UserService;
 
 @Configuration
@@ -26,7 +27,7 @@ import org.zuzukov.bank_rest.service.UserService;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-    private final UserService customUserService;
+    private final CustomUserDetailsService customUserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
