@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/Bank}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    change-log: classpath:db/migration/master.yml
+
+  jmx:
+    enabled: false
+
+  mvc:
+    path-match:
+      matching-strategy: ant_path_matcher
+
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: INFO
+    org.zuzukov.bank_rest: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:MySuperSecretKeyForJWT}
+  encryption-secret: ${JWT_ENC_SECRET:MySuperEncryptionKey}
+
+card:
+  encryption-secret: ${CARD_ENC_SECRET:MyCardEncryptionKey}
+
