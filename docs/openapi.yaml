@@ -1,0 +1,329 @@
+openapi: 3.0.3
+info:
+  title: Bank Cards Management API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Page:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { type: object }
+        totalElements: { type: integer }
+        totalPages: { type: integer }
+        number: { type: integer }
+        size: { type: integer }
+
+    ApiError:
+      type: object
+      properties:
+        timestamp: { type: string, format: date-time }
+        status: { type: integer }
+        code: { type: string }
+        message: { type: string }
+
+    User:
+      type: object
+      properties:
+        userId: { type: string, format: uuid }
+        firstName: { type: string }
+        lastName: { type: string }
+        email: { type: string }
+
+    Card:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        maskedNumber: { type: string, example: "**** **** **** 1234" }
+        ownerEmail: { type: string }
+        expiry: { type: string, format: date }
+        status: { type: string, enum: [ACTIVE, BLOCKED, EXPIRED] }
+        balance: { type: number, format: double }
+
+    CardCreate:
+      type: object
+      required: [ownerEmail, cardNumber, expiryMonth, expiryYear]
+      properties:
+        ownerEmail: { type: string }
+        cardNumber: { type: string, example: "4111111111111111" }
+        expiryMonth: { type: integer, minimum: 1, maximum: 12 }
+        expiryYear: { type: integer, minimum: 2024 }
+        initialBalance: { type: number, format: double }
+
+    TransferRequest:
+      type: object
+      required: [fromCardId, toCardId, amount]
+      properties:
+        fromCardId: { type: string, format: uuid }
+        toCardId: { type: string, format: uuid }
+        amount: { type: number, format: double, minimum: 0.01 }
+
+    JwtAuthentication:
+      type: object
+      properties:
+        token: { type: string }
+        refreshToken: { type: string }
+
+    RefreshToken:
+      type: object
+      properties:
+        refreshToken: { type: string }
+
+    Token:
+      type: object
+      properties:
+        token: { type: string }
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      summary: Register new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, lastName, email, password]
+              properties:
+                firstName: { type: string }
+                lastName: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '201': { description: User registered }
+
+  /auth/login:
+    post:
+      summary: Login and obtain tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JwtAuthentication' }
+
+  /auth/refresh:
+    post:
+      summary: Refresh JWT tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshToken' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JwtAuthentication' }
+
+  /auth/logout:
+    post:
+      summary: Logout and revoke token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Token' }
+      responses:
+        '200': { description: Token revoked }
+
+  /cards:
+    get:
+      summary: List own cards
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+        - in: query
+          name: status
+          schema: { type: string, enum: [ACTIVE, BLOCKED, EXPIRED] }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      content:
+                        items: { $ref: '#/components/schemas/Card' }
+    post:
+      summary: Create card (ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CardCreate' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Card' }
+
+  /cards/{id}/block:
+    post:
+      summary: Block card (ADMIN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Blocked }
+
+  /cards/{id}/activate:
+    post:
+      summary: Activate card (ADMIN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Activated }
+
+  /cards/{id}/request-block:
+    post:
+      summary: User requests card block
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Request accepted }
+
+  /cards/{id}:
+    delete:
+      summary: Delete card (ADMIN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Deleted }
+
+  /cards/transfer:
+    post:
+      summary: Transfer funds between own cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TransferRequest' }
+      responses:
+        '200': { description: OK }
+
+  /cards/admin:
+    get:
+      summary: Admin search cards
+      parameters:
+        - name: ownerEmail
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string, enum: [ACTIVE, BLOCKED, EXPIRED] }
+        - name: last4
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      content:
+                        items: { $ref: '#/components/schemas/Card' }
+
+  /admin/users:
+    get:
+      summary: List users (ADMIN)
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Page'
+                  - type: object
+                    properties:
+                      content:
+                        items: { $ref: '#/components/schemas/User' }
+
+  /admin/users/{userId}/roles/{role}:
+    post:
+      summary: Set or unset role (ADMIN)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: role
+          in: path
+          required: true
+          schema: { type: string, enum: [ROLE_ADMIN, ROLE_USER, ROLE_PREMIUM_USER, ROLE_GUEST] }
+        - name: enabled
+          in: query
+          required: true
+          schema: { type: boolean }
+      responses:
+        '200': { description: OK }
+
+  /admin/users/{userId}:
+    delete:
+      summary: Delete user (ADMIN)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: No Content }
