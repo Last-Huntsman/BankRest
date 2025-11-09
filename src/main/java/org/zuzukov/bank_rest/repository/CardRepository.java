@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,9 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
                            @Param("status") CardStatus status,
                            @Param("last4") String last4,
                            Pageable pageable);
+    @Query("SELECT COALESCE(SUM(c.balance), 0) FROM Card c WHERE c.owner.email = :email")
+    BigDecimal getTotalBalanceByOwnerEmail(@Param("email") String email);
+
 }
 
 
