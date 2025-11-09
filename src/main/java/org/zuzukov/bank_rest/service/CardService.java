@@ -2,6 +2,7 @@ package org.zuzukov.bank_rest.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,16 +13,17 @@ import org.zuzukov.bank_rest.dto.card.TransferRequestDto;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
 import org.zuzukov.bank_rest.entity.User;
+import org.zuzukov.bank_rest.exception.NotFoundException;
+import org.zuzukov.bank_rest.mapper.CardMapper;
 import org.zuzukov.bank_rest.repository.CardRepository;
 import org.zuzukov.bank_rest.repository.UserRepository;
 import org.zuzukov.bank_rest.service.crypto.CryptoService;
-import org.zuzukov.bank_rest.exception.NotFoundException;
-import org.zuzukov.bank_rest.mapper.CardMapper;
 import org.zuzukov.bank_rest.service.validator.CardTransferValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -34,6 +36,8 @@ public class CardService {
     private final CardMapper cardMapper;
     private final CardTransferValidator transferValidator;
 
+    @Value("${card.renew.years:3}")
+    private Integer yearPlus;
 
     @Transactional
     public CardDto adminCreate(CardCreateDto dto) {
@@ -49,10 +53,10 @@ public class CardService {
         card.setStatus(CardStatus.ACTIVE);
         card.setBalance(dto.getInitialBalance() == null ? BigDecimal.ZERO : dto.getInitialBalance());
         card = cardRepository.save(card);
+
         log.info("Card created for owner={}, cardId={}, last4={}", owner.getEmail(), card.getId(), card.getLast4());
         return cardMapper.toDto(card);
     }
-
 
     @Transactional
     public void adminBlock(UUID cardId) {
@@ -62,7 +66,6 @@ public class CardService {
         log.info("Card blocked: id={}", cardId);
     }
 
-
     @Transactional
     public void adminActivate(UUID cardId) {
         Card card = cardRepository.findById(cardId)
@@ -70,7 +73,7 @@ public class CardService {
 
         LocalDate today = LocalDate.now();
         if (card.getExpiry().isBefore(today)) {
-            YearMonth newExpiry = YearMonth.now().plusYears(3);
+            YearMonth newExpiry = YearMonth.now().plusYears(yearPlus);
             card.setExpiry(newExpiry.atEndOfMonth());
             log.info("Card {} expiry extended to {}", cardId, card.getExpiry());
         }
@@ -81,15 +84,19 @@ public class CardService {
         log.info("Card activated: id={}, newExpiry={}", cardId, card.getExpiry());
     }
 
-
     @Transactional
     public void adminDelete(UUID cardId) {
         cardRepository.deleteById(cardId);
         log.info("Card deleted: id={}", cardId);
     }
 
-
     @Transactional(readOnly = true)
+    public BigDecimal getUserTotalBalance(String userEmail) {
+        return Optional.ofNullable(cardRepository.getTotalBalanceByOwnerEmail(userEmail))
+                .orElse(BigDecimal.ZERO);
+    }
+
+    @Transactional
     public Page<CardDto> userListOwn(String userEmail, CardStatus status, Pageable pageable) {
         LocalDate today = LocalDate.now();
         Page<Card> cards = (status == null)
@@ -99,8 +106,8 @@ public class CardService {
         cards.forEach(card -> {
             if (card.getStatus() == CardStatus.ACTIVE && card.getExpiry().isBefore(today)) {
                 card.setStatus(CardStatus.EXPIRED);
-                cardRepository.save(card);
-                log.info("Card {} marked expired automatically (owner={})", card.getId(), userEmail);
+                cardRepository.save(card); // теперь реально вызовется
+                log.debug("Card {} marked expired (owner={})", card.getId(), userEmail);
             }
         });
 
@@ -108,19 +115,19 @@ public class CardService {
     }
 
 
-
     @Transactional
     public void userRequestBlock(String userEmail, UUID cardId) {
-        Card card = cardRepository.findByIdAndOwnerEmail(cardId, userEmail).orElseThrow();
+        Card card = cardRepository.findByIdAndOwnerEmail(cardId, userEmail)
+                .orElseThrow(() -> new NotFoundException("Card not found"));
         if (card.getStatus() == CardStatus.EXPIRED) return;
         card.setStatus(CardStatus.BLOCKED);
         log.info("User requested block: user={}, cardId={}", userEmail, cardId);
     }
 
-
     @Transactional
     public void transferBetweenOwn(String userEmail, TransferRequestDto transfer) {
         transferValidator.ensureNotSameCard(transfer.getFromCardId(), transfer.getToCardId());
+
         Card from = cardRepository.findByIdAndOwnerEmail(transfer.getFromCardId(), userEmail)
                 .orElseThrow(() -> new NotFoundException("From card not found"));
         Card to = cardRepository.findByIdAndOwnerEmail(transfer.getToCardId(), userEmail)
@@ -154,8 +161,6 @@ public class CardService {
     public Page<CardDto> adminSearch(String ownerEmail, CardStatus status, String last4, Pageable pageable) {
         return cardRepository.adminSearch(ownerEmail, status, last4, pageable).map(cardMapper::toDto);
     }
-
-
 }
 
 
