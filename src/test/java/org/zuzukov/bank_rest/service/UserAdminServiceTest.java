@@ -8,9 +8,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.zuzukov.bank_rest.entity.User;
-import org.zuzukov.bank_rest.exception.NotFoundException;
+import org.zuzukov.bank_rest.exception.custom.NotFoundException;
 import org.zuzukov.bank_rest.repository.UserRepository;
-import org.zuzukov.bank_rest.service.UserAdminService;
 
 import java.util.List;
 import java.util.Optional;

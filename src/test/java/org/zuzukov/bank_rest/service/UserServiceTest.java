@@ -2,18 +2,18 @@ package org.zuzukov.bank_rest.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.zuzukov.bank_rest.dto.*;
 import org.zuzukov.bank_rest.entity.RevokedToken;
-import org.zuzukov.bank_rest.entity.Role;
 import org.zuzukov.bank_rest.entity.User;
-import org.zuzukov.bank_rest.exception.*;
+import org.zuzukov.bank_rest.exception.custom.BadRequestException;
+import org.zuzukov.bank_rest.exception.custom.ConflictException;
+import org.zuzukov.bank_rest.exception.custom.InvalidRefreshTokenException;
+import org.zuzukov.bank_rest.exception.custom.UnauthorizedException;
 import org.zuzukov.bank_rest.repository.RevokedTokenRepository;
 import org.zuzukov.bank_rest.repository.UserRepository;
-import org.zuzukov.bank_rest.service.JwtService;
-import org.zuzukov.bank_rest.service.UserService;
+import org.zuzukov.bank_rest.security.JwtService;
 
 import java.util.Optional;
 import java.util.UUID;

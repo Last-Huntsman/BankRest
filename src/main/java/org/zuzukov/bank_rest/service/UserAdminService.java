@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zuzukov.bank_rest.entity.Role;
 import org.zuzukov.bank_rest.entity.User;
 import org.zuzukov.bank_rest.repository.UserRepository;
-import org.zuzukov.bank_rest.exception.NotFoundException;
+import org.zuzukov.bank_rest.exception.custom.NotFoundException;
 
 import java.util.HashSet;
 import java.util.Set;

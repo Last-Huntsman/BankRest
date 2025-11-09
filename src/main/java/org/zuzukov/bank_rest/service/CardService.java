@@ -13,12 +13,11 @@ import org.zuzukov.bank_rest.dto.card.TransferRequestDto;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
 import org.zuzukov.bank_rest.entity.User;
-import org.zuzukov.bank_rest.exception.NotFoundException;
-import org.zuzukov.bank_rest.mapper.CardMapper;
+import org.zuzukov.bank_rest.exception.custom.NotFoundException;
+import org.zuzukov.bank_rest.util.mapper.CardMapper;
 import org.zuzukov.bank_rest.repository.CardRepository;
 import org.zuzukov.bank_rest.repository.UserRepository;
-import org.zuzukov.bank_rest.service.crypto.CryptoService;
-import org.zuzukov.bank_rest.service.validator.CardTransferValidator;
+import org.zuzukov.bank_rest.util.validator.CardTransferValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -106,7 +105,7 @@ public class CardService {
         cards.forEach(card -> {
             if (card.getStatus() == CardStatus.ACTIVE && card.getExpiry().isBefore(today)) {
                 card.setStatus(CardStatus.EXPIRED);
-                cardRepository.save(card); // теперь реально вызовется
+                cardRepository.save(card);
                 log.debug("Card {} marked expired (owner={})", card.getId(), userEmail);
             }
         });

@@ -7,9 +7,9 @@ import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.zuzukov.bank_rest.controller.AuthController;
 import org.zuzukov.bank_rest.dto.*;
-import org.zuzukov.bank_rest.exception.*;
+import org.zuzukov.bank_rest.exception.custom.ConflictException;
+import org.zuzukov.bank_rest.exception.custom.UnauthorizedException;
 import org.zuzukov.bank_rest.service.UserService;
 
 import java.security.Principal;

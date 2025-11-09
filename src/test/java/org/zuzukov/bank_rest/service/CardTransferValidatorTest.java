@@ -3,9 +3,9 @@ package org.zuzukov.bank_rest.service;
 import org.junit.jupiter.api.Test;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
-import org.zuzukov.bank_rest.exception.BadRequestException;
-import org.zuzukov.bank_rest.exception.ConflictException;
-import org.zuzukov.bank_rest.service.validator.CardTransferValidator;
+import org.zuzukov.bank_rest.exception.custom.BadRequestException;
+import org.zuzukov.bank_rest.exception.custom.ConflictException;
+import org.zuzukov.bank_rest.util.validator.CardTransferValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -2,7 +2,6 @@ package org.zuzukov.bank_rest.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.zuzukov.bank_rest.service.crypto.CryptoService;
 
 import java.lang.reflect.Field;
 import java.util.Base64;
@@ -16,7 +15,6 @@ class CryptoServiceTest {
 	@BeforeEach
 	void setup() throws Exception {
 		cryptoService = new CryptoService();
-		// 256-bit key (32 bytes) base64
 		byte[] key = new byte[32];
 		for (int i = 0; i < key.length; i++) key[i] = (byte) i;
 		String base64 = Base64.getEncoder().encodeToString(key);

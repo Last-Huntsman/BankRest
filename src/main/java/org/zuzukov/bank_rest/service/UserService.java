@@ -9,9 +9,10 @@ import org.zuzukov.bank_rest.dto.*;
 import org.zuzukov.bank_rest.entity.RevokedToken;
 import org.zuzukov.bank_rest.entity.Role;
 import org.zuzukov.bank_rest.entity.User;
-import org.zuzukov.bank_rest.exception.*;
+import org.zuzukov.bank_rest.exception.custom.*;
 import org.zuzukov.bank_rest.repository.RevokedTokenRepository;
 import org.zuzukov.bank_rest.repository.UserRepository;
+import org.zuzukov.bank_rest.security.JwtService;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -27,7 +28,6 @@ public class UserService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    // ------------------ LOGIN ------------------
     public JwtAuthenticationDto signIn(UserCredentiallsDto credentialsDto) {
         log.info("User signIn attempt: email={}", credentialsDto.getEmail());
 
@@ -42,7 +42,6 @@ public class UserService {
         return jwtService.generateJwtAuthenticationDto(user.getEmail());
     }
 
-    // ------------------ REFRESH TOKEN ------------------
     public JwtAuthenticationDto refreshToken(RefreshTokenDto refreshTokenDto) {
         String refreshToken = refreshTokenDto.getRefreshToken();
 
@@ -60,7 +59,6 @@ public class UserService {
         return jwtService.refreshBaseToken(email, refreshToken);
     }
 
-    // ------------------ REGISTER ------------------
     public UUID addUser(UserCreateDto userDto) {
         if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
             throw new BadRequestException("Email is required");
@@ -84,7 +82,6 @@ public class UserService {
         return user.getUserId();
     }
 
-    // ------------------ GET USER ------------------
     public UserDto getUserByEmail(String email) {
         if (email == null || email.isBlank()) {
             throw new BadRequestException("Email is required");
@@ -114,7 +111,6 @@ public class UserService {
         return mapToDto(user);
     }
 
-    // ------------------ REVOKE TOKEN ------------------
     public void revokeToken(String token) {
         if (token == null || token.isBlank()) {
             throw new BadRequestException("Token is required");
@@ -130,7 +126,6 @@ public class UserService {
         }
     }
 
-    // ------------------ VALIDATE TOKEN ------------------
     public boolean validateToken(String token, String email) {
         if (token == null || token.isBlank()) return false;
         if (email == null || email.isBlank()) return false;
@@ -138,14 +133,13 @@ public class UserService {
         return jwtService.validateJwtToken(token) && jwtService.getEmailFromToken(token).equals(email);
     }
 
-    // ------------------ UTILS ------------------
     private UserDto mapToDto(User user) {
         UserDto dto = new UserDto();
         dto.setUserId(user.getUserId().toString());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
-        dto.setPassword(null); // не возвращаем пароль
+        dto.setPassword(null);
         return dto;
     }
 }

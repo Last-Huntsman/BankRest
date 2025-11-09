@@ -1,4 +1,4 @@
-package org.zuzukov.bank_rest.mapper;
+package org.zuzukov.bank_rest.util.mapper;
 
 import org.springframework.stereotype.Component;
 import org.zuzukov.bank_rest.dto.card.CardDto;

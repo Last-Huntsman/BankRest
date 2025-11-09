@@ -17,8 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import org.zuzukov.bank_rest.security.JwtFilter;
-import org.zuzukov.bank_rest.service.CustomUserDetailsService;
-import org.zuzukov.bank_rest.service.UserService;
+import org.zuzukov.bank_rest.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity

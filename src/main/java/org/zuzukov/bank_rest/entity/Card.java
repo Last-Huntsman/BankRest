@@ -30,7 +30,7 @@ public class Card {
     private String last4;
 
     @Column(name = "expiry", nullable = false)
-    private LocalDate expiry; // хранится как последний день месяца
+    private LocalDate expiry;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)

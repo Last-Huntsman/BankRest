@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.zuzukov.bank_rest.exception.custom.*;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    // ---- VALIDATION ----
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, Object> details = ex.getBindingResult().getFieldErrors().stream()
@@ -52,7 +53,7 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST, "Missing parameter: " + ex.getParameterName(), null);
     }
 
-    // ---- CUSTOM BUSINESS EXCEPTIONS ----
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex) {
         return build(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST, ex.getMessage(), null);
@@ -83,7 +84,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED, ex.getMessage(), null);
     }
 
-    // ---- SPRING SECURITY ----
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ResponseEntity<ApiError> handleAccessDenied(Exception ex) {
         return build(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, ex.getMessage(), null);
@@ -94,7 +94,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED, ex.getMessage(), null);
     }
 
-    // ---- COMMON JAVA ERRORS ----
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
         return build(HttpStatus.BAD_REQUEST, ErrorCode.BAD_REQUEST, ex.getMessage(), null);

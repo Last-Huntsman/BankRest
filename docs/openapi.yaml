@@ -151,7 +151,7 @@ paths:
                 summary: Login as default admin
                 value:
                   email: "admin@example.com"
-                  password: "admin123"
+                  password: "admin"
       responses:
         '200':
           description: OK

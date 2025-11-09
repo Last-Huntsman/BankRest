@@ -11,9 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.zuzukov.bank_rest.service.CustomUserDetailsService;
-import org.zuzukov.bank_rest.service.JwtService;
-import org.zuzukov.bank_rest.service.UserService;
 
 import java.io.IOException;
 
@@ -37,7 +34,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 setCustomUserDetailsToSecurityContextHolder(token);
             }
         } catch (Exception ex) {
-            // Не ставим аутентификацию — просто пропускаем запрос дальше
             logger.error("Cannot set user authentication: {}");
         }
 

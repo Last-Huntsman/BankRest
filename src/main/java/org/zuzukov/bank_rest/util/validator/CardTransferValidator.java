@@ -1,10 +1,10 @@
-package org.zuzukov.bank_rest.service.validator;
+package org.zuzukov.bank_rest.util.validator;
 
 import org.springframework.stereotype.Component;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
-import org.zuzukov.bank_rest.exception.BadRequestException;
-import org.zuzukov.bank_rest.exception.ConflictException;
+import org.zuzukov.bank_rest.exception.custom.BadRequestException;
+import org.zuzukov.bank_rest.exception.custom.ConflictException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,10 +19,6 @@ public class CardTransferValidator {
         }
     }
 
-    /**
-     * Проверяет, можно ли использовать карту для отправки (FROM).
-     * Можно даже если карта истекла, но не заблокирована.
-     */
     public void ensureTransferFromAllowed(Card card) {
         if (card.getStatus() == CardStatus.BLOCKED) {
             throw new ConflictException("Cannot transfer from blocked card");
@@ -32,10 +28,6 @@ public class CardTransferValidator {
         }
     }
 
-    /**
-     * Проверяет, можно ли использовать карту как получателя (TO).
-     * Нельзя, если карта заблокирована или истекла.
-     */
     public void ensureTransferToAllowed(Card card) {
         if (card.getStatus() != CardStatus.ACTIVE) {
             throw new ConflictException("Destination card is not active");

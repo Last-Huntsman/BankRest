@@ -1,4 +1,4 @@
-package org.zuzukov.bank_rest.service;
+package org.zuzukov.bank_rest.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -100,7 +100,7 @@ public class JwtService {
             Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
-                    .parseSignedClaims(token); // используем parseSignedClaims, не parseEncryptedClaims
+                    .parseSignedClaims(token);
 
             return true;
         } catch (JwtException e) {

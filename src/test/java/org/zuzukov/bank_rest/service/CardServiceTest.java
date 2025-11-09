@@ -14,12 +14,11 @@ import org.zuzukov.bank_rest.dto.card.TransferRequestDto;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
 import org.zuzukov.bank_rest.entity.User;
-import org.zuzukov.bank_rest.exception.NotFoundException;
-import org.zuzukov.bank_rest.mapper.CardMapper;
+import org.zuzukov.bank_rest.exception.custom.NotFoundException;
+import org.zuzukov.bank_rest.util.mapper.CardMapper;
 import org.zuzukov.bank_rest.repository.CardRepository;
 import org.zuzukov.bank_rest.repository.UserRepository;
-import org.zuzukov.bank_rest.service.crypto.CryptoService;
-import org.zuzukov.bank_rest.service.validator.CardTransferValidator;
+import org.zuzukov.bank_rest.util.validator.CardTransferValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,11 +54,10 @@ class CardServiceTest {
         MockitoAnnotations.openMocks(this);
         cardService.getClass()
                 .getDeclaredFields();
-        // через reflection:
         try {
             var field = CardService.class.getDeclaredField("yearPlus");
             field.setAccessible(true);
-            field.set(cardService, 3); // дефолтное значение
+            field.set(cardService, 3);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -105,17 +103,14 @@ class CardServiceTest {
 
     @Test
     void adminActivate_success_extendsExpiry() {
-        // given
         UUID id = UUID.randomUUID();
         Card c = new Card();
         c.setId(id);
-        c.setExpiry(LocalDate.now().minusMonths(1)); // старая дата
+        c.setExpiry(LocalDate.now().minusMonths(1));
         when(cardRepository.findById(id)).thenReturn(Optional.of(c));
 
-        // when
         cardService.adminActivate(id);
 
-        // then
         assertEquals(CardStatus.ACTIVE, c.getStatus());
         assertTrue(c.getExpiry().isAfter(LocalDate.now()), "expiry должен продлеваться при активации");
         verify(cardRepository).findById(id);
@@ -123,10 +118,9 @@ class CardServiceTest {
 
     @Test
     void userListOwn_setsExpiredStatusInDto() {
-        // given
         Card c = new Card();
         c.setId(UUID.randomUUID());
-        c.setExpiry(LocalDate.now().minusDays(1)); // уже истекшая
+        c.setExpiry(LocalDate.now().minusDays(1));
         c.setStatus(CardStatus.ACTIVE);
 
         when(cardRepository.findAllByOwnerEmail(eq("u@x"), any()))
@@ -140,16 +134,14 @@ class CardServiceTest {
             return dto;
         });
 
-        // when
         Page<CardDto> page = cardService.userListOwn("u@x", null, PageRequest.of(0, 10));
 
-        // then
         CardDto result = page.getContent().get(0);
         assertThat(result.getStatus()).isEqualTo(CardStatus.EXPIRED);
 
         verify(cardRepository).findAllByOwnerEmail(eq("u@x"), any());
         verify(cardMapper).toDto(any());
-        verify(cardRepository).save(any(Card.class)); // карта сохранена с новым статусом
+        verify(cardRepository).save(any(Card.class));
     }
 
     @Test
@@ -189,13 +181,11 @@ class CardServiceTest {
 
         cardService.transferBetweenOwn("u@x", req);
 
-        // Проверки взаимодействия с валидатором
         verify(validator).ensureNotSameCard(fromId, toId);
         verify(validator).ensureTransferFromAllowed(from);
         verify(validator).ensureTransferToAllowed(to);
         verify(validator).ensureSufficientFunds(new BigDecimal("100"), new BigDecimal("25"));
 
-        // Проверка изменения балансов
         assertEquals(new BigDecimal("75"), from.getBalance());
         assertEquals(new BigDecimal("25"), to.getBalance());
     }

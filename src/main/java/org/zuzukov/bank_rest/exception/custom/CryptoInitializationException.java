@@ -1,4 +1,4 @@
-package org.zuzukov.bank_rest.exception;
+package org.zuzukov.bank_rest.exception.custom;
 
 public class CryptoInitializationException extends RuntimeException {
     public CryptoInitializationException(String message) {
