@@ -28,7 +28,7 @@ class CardTransferValidatorTest {
 		Card c = new Card();
 		c.setStatus(CardStatus.BLOCKED);
 		c.setExpiry(LocalDate.now().plusDays(1));
-		assertThrows(ConflictException.class, () -> validator.ensureTransferAllowed(c));
+		assertThrows(ConflictException.class, () -> validator.ensureTransferFromAllowed(c));
 	}
 
 	@Test
@@ -36,7 +36,7 @@ class CardTransferValidatorTest {
 		Card c = new Card();
 		c.setStatus(CardStatus.ACTIVE);
 		c.setExpiry(LocalDate.now().minusDays(1));
-		assertThrows(ConflictException.class, () -> validator.ensureTransferAllowed(c));
+		assertThrows(ConflictException.class, () -> validator.ensureTransferToAllowed(c));
 	}
 
 	@Test
