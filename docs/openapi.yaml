@@ -2,6 +2,20 @@ openapi: 3.0.3
 info:
   title: Bank Cards Management API
   version: 1.0.0
+  description: |
+    API для управления банковскими картами и пользователями.
+
+    ### 🧑‍💼 Тестовый администратор по умолчанию
+
+    При инициализации базы данных создаётся администратор со следующими данными:
+
+    - **Email:** `admin@example.com`  
+    - **Пароль:** `admin`  
+    - **Роль:** `ROLE_ADMIN`  
+    - **UUID:** `00000000-0000-0000-0000-000000000001`
+
+    Используй эти данные для авторизации через `/auth/login`,  
+    чтобы выполнять административные операции в Swagger UI.
 servers:
   - url: http://localhost:8080
 
@@ -110,6 +124,17 @@ paths:
   /auth/login:
     post:
       summary: Login and obtain tokens
+      description: |
+        Авторизация пользователя.
+
+        Для тестирования можно использовать встроенного администратора:
+
+        ```json
+        {
+          "email": "admin@example.com",
+          "password": "admin"
+        }
+        ```
       security: []
       requestBody:
         required: true
@@ -121,6 +146,12 @@ paths:
               properties:
                 email: { type: string }
                 password: { type: string }
+            examples:
+              defaultAdmin:
+                summary: Login as default admin
+                value:
+                  email: "admin@example.com"
+                  password: "admin123"
       responses:
         '200':
           description: OK
@@ -278,6 +309,11 @@ paths:
   /admin/users:
     get:
       summary: List users (ADMIN)
+      description: |
+        Возвращает список всех пользователей.  
+        Требуется роль **ROLE_ADMIN**.
+
+        🔑 Используй дефолтного администратора (`admin@example.com`) для авторизации.
       parameters:
         - in: query
           name: page
