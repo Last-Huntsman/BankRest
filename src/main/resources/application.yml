@@ -37,7 +37,7 @@ logging:
     org.zuzukov.bank_rest: INFO
 
 jwt:
-  secret: ${JWT_SECRET:MySuperSecretKeyForJWT}
+  secret: ${JWT_SECRET}
   encryption-secret: ${JWT_ENC_SECRET}
 
 card:
