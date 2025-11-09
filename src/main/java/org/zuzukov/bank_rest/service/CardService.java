@@ -13,6 +13,7 @@ import org.zuzukov.bank_rest.dto.card.TransferRequestDto;
 import org.zuzukov.bank_rest.entity.Card;
 import org.zuzukov.bank_rest.entity.CardStatus;
 import org.zuzukov.bank_rest.entity.User;
+import org.zuzukov.bank_rest.exception.custom.ConflictException;
 import org.zuzukov.bank_rest.exception.custom.NotFoundException;
 import org.zuzukov.bank_rest.util.mapper.CardMapper;
 import org.zuzukov.bank_rest.repository.CardRepository;
@@ -42,11 +43,18 @@ public class CardService {
     public CardDto adminCreate(CardCreateDto dto) {
         User owner = userRepository.findByEmail(dto.getOwnerEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Owner not found"));
+        String cardHash = cryptoService.hashCardNumber(dto.getCardNumber());
+        if (cardRepository.existsByNumberHash(cardHash)) {
+            throw new IllegalArgumentException("Card number already exists");
+        }
+
 
         Card card = new Card();
         card.setOwner(owner);
         card.setNumberEncrypted(cryptoService.encrypt(dto.getCardNumber()));
         card.setLast4(dto.getCardNumber().substring(12));
+        card.setNumberEncrypted(cryptoService.encrypt(dto.getCardNumber()));
+        card.setNumberHash(cardHash);
         YearMonth ym = YearMonth.of(dto.getExpiryYear(), dto.getExpiryMonth());
         card.setExpiry(ym.atEndOfMonth());
         card.setStatus(CardStatus.ACTIVE);

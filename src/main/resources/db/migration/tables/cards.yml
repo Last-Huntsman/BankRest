@@ -28,6 +28,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: number_hash
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+              - column:
                   name: last4
                   type: VARCHAR(4)
                   constraints:
@@ -65,5 +70,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: status
-
-
+        - addUniqueConstraint:
+            tableName: cards
+            columnNames: number_hash
+            constraintName: uq_cards_number_hash

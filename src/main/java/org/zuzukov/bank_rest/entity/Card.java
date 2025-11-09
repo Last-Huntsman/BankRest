@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "cards")
+@Table(name = "cards", uniqueConstraints = @UniqueConstraint(columnNames = "number_hash"))
 @Data
 public class Card {
     @Id
@@ -25,6 +25,9 @@ public class Card {
 
     @Column(name = "number_enc", nullable = false, length = 512)
     private String numberEncrypted;
+
+    @Column(name = "number_hash", nullable = false, length = 64, unique = true)
+    private String numberHash; // новый столбец для хеша номера карты
 
     @Column(name = "last4", nullable = false, length = 4)
     private String last4;

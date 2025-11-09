@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CardRepository extends JpaRepository<Card, UUID> {
+    boolean existsByNumberHash(String numberHash);
 
     @Query("SELECT c FROM Card c WHERE c.status = :status AND c.expiry < :date")
     List<Card> findAllActiveExpired(CardStatus status, LocalDate date);
