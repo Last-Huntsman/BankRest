@@ -113,4 +113,38 @@ databaseChangeLog:
               - column:
                   name: token
 
+  - changeSet:
+      id: core-admin-user-1
+      author: assistant
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  value: "00000000-0000-0000-0000-000000000001"
+              - column:
+                  name: first_name
+                  value: "Admin"
+              - column:
+                  name: last_name
+                  value: "User"
+              - column:
+                  name: email
+                  value: "admin@example.com"
+              - column:
+                  name: password
+                  value: "$2a$12$7J.swcTE6Fy9o24yQnf7o.x0GR86/0be7VQoRVv2sGUgdpVgGGU0u"
+              - column:
+                  name: version
+                  valueNumeric: 1
 
+        - insert:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: user_id
+                  value: "00000000-0000-0000-0000-000000000001"
+              - column:
+                  name: role
+                  value: "ROLE_ADMIN"

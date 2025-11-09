@@ -42,4 +42,6 @@ jwt:
 
 card:
   encryption-secret: ${CARD_ENC_SECRET:MyCardEncryptionKey}
+  renew:
+    years: 3
 
