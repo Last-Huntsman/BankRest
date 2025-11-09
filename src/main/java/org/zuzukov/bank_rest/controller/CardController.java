@@ -9,11 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.zuzukov.bank_rest.dto.card.*;
 import org.zuzukov.bank_rest.entity.CardStatus;
 import org.zuzukov.bank_rest.service.CardService;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.UUID;
 
@@ -128,5 +130,13 @@ public class CardController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(cardService.adminSearch(ownerEmail, status, last4, pageable));
+    }
+    @Operation(summary = "Посмотреть общий баланс")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
+    @GetMapping("/balance/total")
+    public ResponseEntity<BigDecimal> getTotalBalance(Authentication authentication) {
+        String email = authentication.getName();
+        BigDecimal total = cardService.getUserTotalBalance(email);
+        return ResponseEntity.ok(total);
     }
 }
