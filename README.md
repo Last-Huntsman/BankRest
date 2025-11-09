@@ -182,25 +182,40 @@ mvn test
 ## 📁 Структура проекта
 
 ```
-src/
-├── main/
-│   ├── java/org/zuzukov/bank_rest/
-│   │   ├── config/          # Конфигурация (Security, OpenAPI)
-│   │   ├── controller/      # REST контроллеры
-│   │   ├── dto/             # Data Transfer Objects
-│   │   ├── entity/          # JPA сущности
-│   │   ├── exception/       # Обработка исключений
-│   │   ├── mapper/          # Маппинг entity -> DTO
-│   │   ├── repository/      # JPA репозитории
-│   │   ├── security/        # JWT фильтр и UserDetails
-│   │   ├── service/         # Бизнес-логика
-│   │   │   ├── crypto/      # Сервис шифрования
-│   │   │   └── validator/   # Валидаторы
-│   │   └── util/            # Утилиты (маскирование, планировщик)
-│   └── resources/
-│       ├── application.yml  # Конфигурация приложения
-│       └── db/migration/    # Liquibase миграции
-└── test/                    # Юнит-тесты
+...
+├── docs/ # Документация (OpenAPI)
+│ └── openapi.yaml
+├── src/
+│ ├── main/
+│ │ ├── java/org/zuzukov/bank_rest/
+│ │ │ ├── config/ # Конфигурация (Security, OpenAPI)
+│ │ │ ├── controller/ # REST контроллеры
+│ │ │ ├── dto/ # Data Transfer Objects
+│ │ │ │ └── card/ # DTO для карт
+│ │ │ ├── entity/ # JPA сущности
+│ │ │ ├── exception/ # Обработка исключений
+│ │ │ │ └── custom/ # Кастомные исключения
+│ │ │ ├── repository/ # JPA репозитории
+│ │ │ ├── security/ # JWT фильтр и UserDetails
+│ │ │ ├── service/ # Бизнес-логика
+│ │ │ │ ├── crypto/ # Сервис шифрования
+│ │ │ │ └── validator/ # Валидаторы
+│ │ │ └── util/ # Утилиты (маскирование, планировщик)
+│ │ │ ├── mapper/ # Маппинг entity -> DTO
+│ │ │ └── validator/ # Валидаторы
+│ │ └── resources/
+│ │ ├── application.yml # Конфигурация приложения
+│ │ └── db/migration/ # Liquibase миграции
+│ │ └── tables/ # Таблицы БД
+├── src/test/ # Юнит-тесты
+│ └── java/org/zuzukov/bank_rest/
+│ ├── controller/ # Тесты контроллеров
+│ └── service/ # Тесты сервисов и валидаторов
+├── .env # Переменные окружения
+├── docker-compose.yml # Docker Compose
+├── Dockerfile # Dockerfile
+├── pom.xml # Maven проект
+└── README.md # Документация проекта
 ```
 
 ## 🗄️ База данных
